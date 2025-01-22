@@ -1,0 +1,59 @@
+import { Kafka, logLevel } from 'kafkajs';
+import sendEmail from './mailer.js';
+
+const kafka = new Kafka({
+    clientId: 'notification-service',
+    brokers: ['localhost:9093'], 
+    // logLevel: logLevel.DEBUG,
+});
+
+
+const consumer = kafka.consumer({ groupId: 'notification-group' });
+
+const runConsumer = async () => {
+    try {
+        console.log('Connecting to Kafka consumer...');
+        await consumer.connect();
+        console.log('Connected.');
+
+        console.log('Subscribing to topic: notification-created...');
+        await consumer.subscribe({ topic: 'notification-created', fromBeginning: true });
+        console.log('Subscribed successfully.');
+
+        console.log('Starting consumer...');
+        await consumer.run({
+            eachMessage: async ({ topic, partition, message }) => {
+                console.log(`Received message from topic "${topic}", partition ${partition}`);
+                // console.log(`Message: ${message.value.toString()}`);
+                
+                try {
+                    const event = JSON.parse(message.value.toString());
+                    // console.log('Event received:', event);
+                    console.log(event._doc);
+                    const mailOptions = {
+                        from: process.env.UserMail,       // Sender's email
+                        to: event.email,    // Recipient's email
+                        subject: 'Welcome to Our Service!', // Email subject
+                        text: 'Thank you for signing up for our service. We are excited to have you on board!', // Plain text body
+                        html: '<p>Thank you for <b>signing up</b> for our service. We are excited to have you on board!</p>' // HTML body
+                    };
+                    if (event.userId && event.type && event.content) {
+                        console.log(`Notification for User ${event.userId}: ${event.content}`);
+                        if (event.email) {
+                            console.log('Sending email notification...');
+                            await sendEmail(event.email, event.content);
+                        }
+                    } else {
+                        console.warn('Invalid event structure:', event);
+                    }
+                } catch (parseError) {
+                    console.error('Failed to parse message:', parseError);
+                }
+            },
+        });
+    } catch (consumerError) {
+        console.error('Consumer failed:', consumerError);
+    }
+};
+
+runConsumer();
