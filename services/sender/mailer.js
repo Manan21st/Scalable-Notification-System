@@ -2,17 +2,19 @@ import nodemailer from 'nodemailer';
 
 // Step 1: Configure the transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Use the email service (e.g., Gmail, Outlook)
-  auth: {
-    user: process.env.UserMail, // Replace with your email
-    pass: process.env.UserPass   // Replace with your email password or app password
-  }
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false, // use true for 465, false for other ports
+    auth: {
+        user: process.env.UserMail,
+        pass: process.env.UserPass,
+    },
 });
 
 // Step 2: Set up the email options
 
 
-const sendEmail = async function (req, res) {
+const sendEmail = (mailOptions) => {
     
 
 // Step 3: Send the email

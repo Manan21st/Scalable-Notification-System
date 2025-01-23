@@ -1,7 +1,7 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 dotenv.config();
-const { NOTIFICATION_SERVICE_URL } = process.env;
+
 
 import authenticateJWT from '../middlewares/authenticate.js';
 
@@ -14,7 +14,7 @@ export default  {
       // authenticateJWT();
       console.log('Getting all notifications');
       try {
-        const response = await axios.get(`${NOTIFICATION_SERVICE_URL}/notifications?userId=${userId}`);
+        const response = await axios.get(`${process.env.NOTIFICATION_SERVICE_URL}/notifications?userId=${userId}`);
         let notifications = response.data.map(notification => {
           return {
             id: notification._id,

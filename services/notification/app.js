@@ -15,8 +15,8 @@ app.get('/' , (req , res) => {
     res.send("Notification Service");
 });
 
-// runConsumer();
-fetchAndNotifyOrderUpdates();
+runConsumer();
+// fetchAndNotifyOrderUpdates();
 // fetchAndNotifyPromotions();
 // fetchAndNotifyRecommendations();
 

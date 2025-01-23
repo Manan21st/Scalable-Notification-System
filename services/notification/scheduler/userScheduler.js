@@ -7,7 +7,7 @@ import users from '../data/UserData.js';
 
 const kafka = new Kafka({
     clientId: 'user-service',
-    brokers: ['localhost:9093'] 
+    brokers: ['localhost:9092'] 
 });
 
 const consumer = kafka.consumer({ groupId: 'notification-group' });

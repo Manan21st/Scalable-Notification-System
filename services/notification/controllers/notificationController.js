@@ -5,7 +5,7 @@ dotenv.config();
 
 const kafka = new Kafka({
     clientId: 'notification-service',
-    brokers: ['localhost:9093']
+    brokers: ['kafka:9092']
 });
 
 const producer = kafka.producer();

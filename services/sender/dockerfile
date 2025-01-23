@@ -1,0 +1,22 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install additional dependencies for handling different notification channels
+# RUN apk add --no-cache python3 py3-pip \
+#     && pip3 install --no-cache-dir firebase-admin twilio
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3003
+
+# Start the service
+CMD ["npm", "start"]

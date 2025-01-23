@@ -3,7 +3,7 @@ import sendEmail from './mailer.js';
 
 const kafka = new Kafka({
     clientId: 'notification-service',
-    brokers: ['localhost:9093'], 
+    brokers: ['kafka:9092'], 
     // logLevel: logLevel.DEBUG,
 });
 
@@ -15,7 +15,7 @@ const runConsumer = async () => {
         console.log('Connecting to Kafka consumer...');
         await consumer.connect();
         console.log('Connected.');
-
+        
         console.log('Subscribing to topic: notification-created...');
         await consumer.subscribe({ topic: 'notification-created', fromBeginning: true });
         console.log('Subscribed successfully.');
@@ -33,15 +33,15 @@ const runConsumer = async () => {
                     const mailOptions = {
                         from: process.env.UserMail,       // Sender's email
                         to: event.email,    // Recipient's email
-                        subject: 'Welcome to Our Service!', // Email subject
-                        text: 'Thank you for signing up for our service. We are excited to have you on board!', // Plain text body
-                        html: '<p>Thank you for <b>signing up</b> for our service. We are excited to have you on board!</p>' // HTML body
+                        subject: event._doc.type, // Email subject
+                        text: event._doc.content, // Plain text body
+                       
                     };
-                    if (event.userId && event.type && event.content) {
-                        console.log(`Notification for User ${event.userId}: ${event.content}`);
+                    if (event._doc.userId && event._doc.type && event._doc.content) {
+                        console.log(`Notification for User ${event._doc.userId}: ${event._doc.content}`);
                         if (event.email) {
                             console.log('Sending email notification...');
-                            await sendEmail(event.email, event.content);
+                            // await sendEmail(mailOptions);
                         }
                     } else {
                         console.warn('Invalid event structure:', event);
