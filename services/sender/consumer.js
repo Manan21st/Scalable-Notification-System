@@ -31,8 +31,8 @@ const runConsumer = async () => {
                     // console.log('Event received:', event);
                     console.log(event._doc);
                     const mailOptions = {
-                        from: process.env.UserMail,       // Sender's email
-                        to: event.email,    // Recipient's email
+						from: process.env.SMTP_USER, // Sender's email
+						to: event.email, // Recipient's email
                         subject: event._doc.type, // Email subject
                         text: event._doc.content, // Plain text body
                        

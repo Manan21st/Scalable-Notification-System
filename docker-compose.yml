@@ -1,52 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  zookeeper:
-    image: wurstmeister/zookeeper:latest
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    networks:
-      - backend
-
-  kafka:
-    image: wurstmeister/kafka:2.13-2.7.0
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_CREATE_TOPICS: "user.created:1:1,user.login:1:1,user.preferences.updated:1:1,user.details.accessed:1:1 , notification-created:1:1"
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    depends_on:
-      - zookeeper
-    networks:
-    - backend
-
-
-  users-db:
-    image: mongo
-    container_name: users-db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: username
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: users-service
-    ports:
-      - "27018:27017"
-    networks:
-      - backend
-
-  notification-db:
-    image: mongo
-    container_name: notification-db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: username
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: notification-service
-    ports:
-      - "27019:27017"
-    networks:
-      - backend
-
   graphql-gateway:
     build:
       context: ./gateway
@@ -57,6 +11,7 @@ services:
     environment:
       USER_SERVICE_URL: http://user-service:3001/graphql
       NOTIFICATION_SERVICE_URL: http://notification-service:3002/graphql
+      SECRET_KEY: ${SECRET_KEY}
     depends_on:
       - user-service
       - notification-service
@@ -71,11 +26,9 @@ services:
     ports:
       - "3001:3001"
     environment:
-      KAFKA_BROKER: host.docker.internal:9092
-      MONGO_URI: mongodb://users-db:27017/users-service
-    depends_on:
-      - kafka
-      - users-db
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      MONGO_URI: ${USER_DB_URL}
+      SECRET_KEY: ${SECRET_KEY}
     networks:
       - backend
 
@@ -87,11 +40,9 @@ services:
     ports:
       - "3002:3002"
     environment:
-      KAFKA_BROKER: host.docker.internal:9092 # Corrected Kafka address
-      MONGO_URI: mongodb://notification-db:27017/notification-service
-    depends_on:
-      - kafka
-      - notification-db
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      MONGO_URI: ${NOTIFICATION_DB_URL}
+      SECRET_KEY: ${SECRET_KEY}
     networks:
       - backend
 
@@ -103,25 +54,13 @@ services:
     ports:
       - "3003:3003"
     environment:
-      KAFKA_BROKER: host.docker.internal:9092 
+      KAFKA_BROKER: ${KAFKA_BROKER}
       SMTP_HOST: smtp.gmail.com
       SMTP_PORT: 587
-      SMTP_USER: notification@example.com
-      SMTP_PASS: your_password
-      TWILIO_ACCOUNT_SID: your_account_sid
-      TWILIO_AUTH_TOKEN: your_auth_token
-      FIREBASE_CREDENTIALS: your_firebase_credentials
-    depends_on:
-      - kafka
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-app-specific-password
     networks:
       - backend
-
-volumes:
-  zookeeper_data:
-  zookeeper_logs:
-  kafka_data:
-  mongo_data:
-
 
 networks:
   backend:
