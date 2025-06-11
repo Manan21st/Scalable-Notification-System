@@ -6,7 +6,7 @@ dotenv.config();
 // Initialize Kafka producer
 const kafka = new Kafka({
     clientId: 'user-service',
-    brokers: ['kafka:9092'] 
+	brokers: [process.env.KAFKA_BROKER],
 });
 
 const producer = kafka.producer();

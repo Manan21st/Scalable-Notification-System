@@ -3,7 +3,7 @@ import sendEmail from './mailer.js';
 
 const kafka = new Kafka({
     clientId: 'notification-service',
-    brokers: ['kafka:9092'], 
+	brokers: [process.env.KAFKA_BROKER],
     // logLevel: logLevel.DEBUG,
 });
 

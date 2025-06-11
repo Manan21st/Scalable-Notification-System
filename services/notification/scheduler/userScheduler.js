@@ -2,12 +2,12 @@
 import { Kafka } from 'kafkajs';
 import axios from 'axios';
 import users from '../data/UserData.js';
-
-
+import dotenv from 'dotenv';
+dotenv.config();
 
 const kafka = new Kafka({
     clientId: 'user-service',
-    brokers: ['localhost:9092'] 
+	brokers: [process.env.KAFKA_BROKER],
 });
 
 const consumer = kafka.consumer({ groupId: 'notification-group' });
